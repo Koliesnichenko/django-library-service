@@ -41,7 +41,11 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
         return queryset
 
-    @action(methods=["POST"], detail=True, url_path="return")
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="return"
+    )
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
         serializer = ReturnBorrowingSerializer(borrowing, data={})
