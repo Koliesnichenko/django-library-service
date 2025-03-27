@@ -26,6 +26,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/books/", include("books.urls", namespace="books")),
     path("api/user/", include("user.urls", namespace="user")),
+    path("api/borrowings/", include("borrowings.urls", namespace="borrowings")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
