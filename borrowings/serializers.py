@@ -1,5 +1,6 @@
 from datetime import date
 
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from borrowings.models import Borrowing
 from books.serializers import BookSerializer
@@ -30,19 +31,9 @@ class BorrowingCreateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This book is not available now.")
         return attrs
 
-    def create(self, validated_data):
-        book = validated_data["book"]
-        book.inventory -= 1
-        book.save()
-
-        borrowing = Borrowing.objects.create(
-            user=self.context["request"].user,
-            **validated_data
-        )
-        return borrowing
-
 
 class ReturnBorrowingSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Borrowing
         fields = ("id", "actual_return_date")
@@ -53,10 +44,3 @@ class ReturnBorrowingSerializer(serializers.ModelSerializer):
         if borrowing.actual_return_date:
             raise serializers.ValidationError("This book is already returned.")
         return attrs
-
-    def update(self, instance, validated_data):
-        instance.actual_return_date = date.today()
-        instance.book.inventory += 1
-        instance.book.save()
-        instance.save()
-        return instance
