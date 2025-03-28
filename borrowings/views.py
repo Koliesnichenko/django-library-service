@@ -1,3 +1,5 @@
+from datetime import date
+
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework import viewsets, status
@@ -6,7 +8,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from borrowings.models import Borrowing
-from borrowings.serializers import BorrowingSerializer, BorrowingCreateSerializer, ReturnBorrowingSerializer
+from borrowings.serializers import (
+    BorrowingSerializer,
+    BorrowingCreateSerializer,
+    ReturnBorrowingSerializer
+)
+from lib_bot.bot import send_telegram_message
+from payments.utils import create_stripe_payment_session
 
 
 @extend_schema(tags=["borrowings"])
@@ -75,6 +83,25 @@ class BorrowingViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    def perform_create(self, serializer):
+        user = self.request.user
+
+        if not user.is_staff:
+            serializer.validated_data["user"] = user
+
+        borrowing = serializer.save()
+
+        create_stripe_payment_session(borrowing, self.request)
+
+        message = (
+            f"<b> New Borrowing</b>\n"
+            f"User: {borrowing.user.email}\n"
+            f"Book: {borrowing.book.title}\n"
+            f"Borrowed: {borrowing.borrow_date}\n"
+            f"Return by: {borrowing.expected_return_date}\n"
+        )
+        send_telegram_message(message)
+
     @extend_schema(
         summary="Return a borrowed book by ID.",
         description="Set actual_return_date to today and increase book inventory. "
@@ -89,7 +116,32 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     )
     def return_borrowing(self, request, pk=None):
         borrowing = self.get_object()
-        serializer = ReturnBorrowingSerializer(borrowing, data={})
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user = request.user
+
+        if borrowing.user != user and not user.is_staff:
+            return Response(
+                {"error": "You can return only your own borrowings."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if borrowing.actual_return_date:
+            return Response(
+                {"error": "This book has already been returned."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        borrowing.return_borrowing_with_fine(actual_return_date=date.today())
+
+        message = (
+            f"<b>Book Returned</b>\n"
+            f"User: {borrowing.user.email}\n"
+            f"Book: {borrowing.book.title}\n"
+            f"Borrowed: {borrowing.borrow_date}\n"
+            f"Returned: {borrowing.actual_return_date}"
+        )
+        send_telegram_message(message)
+
+        return Response(
+            {"detail": "Borrowing successfully returned."},
+            status=status.HTTP_200_OK,
+        )
