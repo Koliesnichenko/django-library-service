@@ -4,9 +4,6 @@ from django.conf import settings
 from django.db import models, transaction
 
 from books.models import Book
-from payments.models import Payment
-
-from payments.utils import create_stripe_payment_session
 
 FINE_MULT = 2
 
@@ -56,6 +53,7 @@ class Borrowing(models.Model):
                 request=None
             )
 
+            from payments.models import Payment
             Payment.objects.create(
                 user=self.user,
                 borrowing=self,

@@ -13,3 +13,5 @@ urlpatterns = [
     path("success/", PaymentSuccessView.as_view(), name="payment-success"),
     path("cancel/", PaymentCancelView.as_view(), name="payment-cancel"),
 ]
+
+app_name = "payments"
