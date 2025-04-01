@@ -2,7 +2,8 @@ from django_filters.rest_framework import DjangoFilterBackend
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import viewsets, mixins, status
 from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.decorators import action
+from rest_framework.decorators import action, parser_classes
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.permissions import IsAdminUser, AllowAny
 from rest_framework.response import Response
 
@@ -73,12 +74,20 @@ class BookViewSet(
 
         return BookSerializer
 
+    @extend_schema(
+        summary="Upload a new book.",
+        description="Upload image for a specific book.",
+        request=BookImageSerializer,
+        responses={status.HTTP_200_OK: BookImageSerializer()},
+        methods=["POST"]
+    )
     @action(
         methods=["POST"],
         detail=True,
         url_path="upload-image",
         permission_classes=[IsAdminUser],
     )
+    @parser_classes([MultiPartParser, FormParser])
     def upload_image(self, request, pk=None):
         book = self.get_object()
         serializer = self.get_serializer(book, data=request.data)
