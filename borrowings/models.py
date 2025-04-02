@@ -33,6 +33,7 @@ class Borrowing(models.Model):
         if not self.actual_return_date:
             self.actual_return_date = date.today()
             self.book.inventory += 1
+            self.book.save()
             self.save()
 
     def is_active(self):
