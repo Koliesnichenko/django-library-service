@@ -15,6 +15,11 @@ class BookSerializer(serializers.ModelSerializer):
             return self.context["request"].build_absolute_uri(obj.image.url)
         return None
 
+    def validate(self, attrs):
+        instance = Book(**attrs)
+        instance.clean()
+        return attrs
+
 
 class BookImageSerializer(serializers.ModelSerializer):
 
