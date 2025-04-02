@@ -34,9 +34,9 @@ class Book(models.Model):
         verbose_name_plural = "Books"
 
     def clean(self):
-        if self.inventory < 1:
+        if self.inventory is not None and self.inventory < 1:
             raise ValidationError("Inventory must be at least 1")
-        if self.daily_fee < 0.01:
+        if self.daily_fee is not None and self.daily_fee < 0.01:
             raise ValidationError("Daily fee must be at least 0.01")
 
     def __str__(self):
