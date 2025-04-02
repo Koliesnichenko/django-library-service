@@ -1,0 +1,23 @@
+# Django settings module
+DJANGO_SETTINGS_MODULE=django_library_service.settings
+
+# Telegram Bot Configuration
+TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+TELEGRAM_CHAT_ID=your-chat-id
+
+# Stripe Payment Configuration
+STRIPE_SECRET_KEY=your-stripe-secret-key
+
+# PostgreSQL Database Configuration
+POSTGRES_DB=library_service
+POSTGRES_USER=library_user
+POSTGRES_PASSWORD=libraryservice
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+PGDATA=/var/lib/postgresql/data
+
+# Django Secret Key
+SECRET_KEY=your-django-secret-key
+
+# Debug setting for Django
+DEBUG=True
