@@ -1,6 +1,7 @@
 import os
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
 
@@ -31,6 +32,12 @@ class Book(models.Model):
         ordering = ["title"]
         verbose_name = "Book"
         verbose_name_plural = "Books"
+
+    def clean(self):
+        if self.inventory < 1:
+            raise ValidationError("Inventory must be at least 1")
+        if self.daily_fee < 0.01:
+            raise ValidationError("Daily fee must be at least 0.01")
 
     def __str__(self):
         return f"{self.title} - {self.author}"

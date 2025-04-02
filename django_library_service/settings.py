@@ -17,7 +17,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -51,7 +50,7 @@ INSTALLED_APPS = [
     "books",
     "borrowings",
     "lib_bot",
-    "payments",
+    "payments"
 ]
 
 MIDDLEWARE = [
@@ -94,7 +93,7 @@ DATABASES = {
         "NAME": os.getenv("POSTGRES_DB"),
         "USER": os.getenv("POSTGRES_USER"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_HOST"),
+        "HOST": os.getenv("POSTGRES_HOST", "db"),
         "PORT": os.getenv("POSTGRES_PORT", 5432),
     }
 }
